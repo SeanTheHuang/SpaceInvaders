@@ -47,6 +47,7 @@ public:
 	virtual void Process(float _fDeltaTick);
 
 	void setBulletOwner(BULLET_OWNER);
+	void setBulletSpeed(float);
 
 protected:
 

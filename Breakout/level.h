@@ -79,9 +79,13 @@ protected:
     int m_iWidth;
     int m_iHeight;
 
-	int m_iInvaderMoveSpeed;
-	int m_iInvaderDropStep;
+	//Variables to be changed in debug window
+	int m_fInvaderMoveSpeed;
+	int m_fInvaderDropStep;
 
+	float m_fPlayerBulletSpeed;
+	float m_fInvaderBulletSpeed;
+	//=======================
 	int m_iCurrentScore;
 
     std::string m_strScore;

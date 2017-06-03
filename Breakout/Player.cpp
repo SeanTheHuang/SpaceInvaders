@@ -30,7 +30,7 @@
 CPlayer::CPlayer()
 	: m_fMoveSpeed(100)
 	, m_bFireOnCooldown(false)
-	, m_fBulletCooldown(1.0f)
+	, m_fBulletCooldown(0.5f)
 	, m_fBulletCooldownTimer(0)
 {
 

@@ -40,8 +40,10 @@ CLevel::CLevel()
 , m_iHeight(0)
 , m_fpsCounter(0)
 , m_pPlayer(0)
-, m_iInvaderMoveSpeed(30)
-, m_iInvaderDropStep(21)
+, m_fInvaderMoveSpeed(30.0f)
+, m_fInvaderDropStep(21.0f)
+, m_fPlayerBulletSpeed(180.0f)
+, m_fInvaderBulletSpeed(180.0f)
 , m_iCurrentScore(0)
 {
 
@@ -102,8 +104,8 @@ CLevel::Initialise(int _iWidth, int _iHeight)
 
 			pInvader->SetX(static_cast<float>(iCurrentX));
 			pInvader->SetY(static_cast<float>(iCurrentY));
-			pInvader->SetMoveSpeedX(static_cast<float>(m_iInvaderMoveSpeed));
-			pInvader->SetMoveStepY(static_cast<float>(m_iInvaderDropStep));
+			pInvader->SetMoveSpeedX(m_fInvaderMoveSpeed);
+			pInvader->SetMoveStepY(m_fInvaderDropStep);
 
 			iCurrentX += static_cast<int>(pInvader->GetWidth()) + kiGap;
 
@@ -122,6 +124,12 @@ void
 CLevel::Draw()
 {
 	//Draw Background (TODO??)
+
+	//Draw Bullets
+	for (unsigned int i = 0; i < m_vecBullets.size(); i++)
+	{
+		m_vecBullets[i]->Draw();
+	}
 
 	//Draw Player
 	m_pPlayer->Draw();
@@ -143,6 +151,12 @@ CLevel::Process(float _fDeltaTick)
 
 	//Process Firing bullets
 	ProcessPlayerFiringBullet();
+
+	//Bullet process
+	for (unsigned int i = 0; i < m_vecBullets.size(); i++)
+	{
+		m_vecBullets[i]->Process(_fDeltaTick);
+	}
 
 	//Player process
 	m_pPlayer->Process(_fDeltaTick);
@@ -231,8 +245,9 @@ CLevel::ProcessPlayerFiringBullet()
 		VALIDATE(bullet->Initialise());
 
 		bullet->SetX(m_pPlayer->GetX());
-		bullet->SetY(m_pPlayer->GetY() + bullet->GetHeight() / 2);
+		bullet->SetY(m_pPlayer->GetY() - bullet->GetHeight() / 2);
 		bullet->setBulletOwner(PLAYER);
+		bullet->setBulletSpeed(m_fPlayerBulletSpeed * -1.0f); //Make sure bullet going up
 
 		m_vecBullets.push_back(bullet);
 
