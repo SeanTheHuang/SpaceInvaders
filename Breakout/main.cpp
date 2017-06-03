@@ -23,8 +23,8 @@
 #include "level.h"
 #include "paddle.h"
 
-const int kiWidth = 400;
-const int kiHeight = 400;
+const int kiWidth = 420;
+const int kiHeight = 600;
 
 
 #define WINDOW_CLASS_NAME L"BSENGGFRAMEWORK"
@@ -37,7 +37,7 @@ WindowProc(HWND _hWnd, UINT _uiMsg, WPARAM _wParam, LPARAM _lParam)
 	case WM_MOUSEMOVE:
 	{
 		int iMouseX = LOWORD(_lParam);
-		CGame::GetInstance().GetLevel()->GetPaddle()->SetX(static_cast<float>(iMouseX));
+		//CGame::GetInstance().GetLevel()->GetPaddle()->SetX(static_cast<float>(iMouseX));
 		return (0);
 	}
 		break;
@@ -106,7 +106,7 @@ int WINAPI WinMain(HINSTANCE _hInstance, HINSTANCE _hPrevInstance, LPSTR _lpCmdl
 	ZeroMemory(&msg, sizeof(MSG));
 
 
-	HWND hwnd = CreateAndRegisterWindow(_hInstance, kiWidth, kiHeight, L"Breakout");
+	HWND hwnd = CreateAndRegisterWindow(_hInstance, kiWidth, kiHeight, L"Sean's Space Invaders");
 
 	CGame& rGame = CGame::GetInstance();
 	

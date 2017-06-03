@@ -29,10 +29,11 @@
 
 // Prototypes
 class CBall;
-class CPaddle;
-class CBrick;
+class CPlayer;
+class CInvader;
 class CFPSCounter;
 class CBackGround;
+class CBullet;
 
 class CLevel
 {
@@ -46,25 +47,18 @@ public:
     virtual void Draw();
     virtual void Process(float _fDeltaTick);
 
-    CPaddle* GetPaddle() const;
-
-    int GetBricksRemaining() const;
-
 protected:
-    void ProcessBallWallCollision();
-	void ProcessPaddleWallCollison();
-    void ProcessBallPaddleCollision();
-    void ProcessBallBrickCollision();
+	void MoveInvadersDown();
+	void ProcessInvadersInBounds();
+	bool ProcessPlayerFiringBullet();
 
-    void ProcessCheckForWin();
-
-    void ProcessBallBounds();
+	void ProcessBulletsHitInvader();
+	void ProcessBulletsHitPlayer();
+	void ProcessBulletsHitShield();
 
     void UpdateScoreText();
     void DrawScore();
 	void DrawFPS();
-
-    void SetBricksRemaining(int _i);
 
 private:
     CLevel(const CLevel& _kr);
@@ -74,16 +68,21 @@ private:
 public:
 
 protected:
-	CBackGround* m_pBackground;
-    CBall* m_pBall;
-    CPaddle* m_pPaddle;
-    std::vector<CBrick*> m_vecBricks;
+	CPlayer* m_pPlayer;
+
+	std::vector<CInvader*> m_vecInvaders;
+	std::vector<CBullet*> m_vecBullets;
+	
+
 	CFPSCounter* m_fpsCounter;
 
     int m_iWidth;
     int m_iHeight;
 
-    int m_iBricksRemaining;
+	int m_iInvaderMoveSpeed;
+	int m_iInvaderDropStep;
+
+	int m_iCurrentScore;
 
     std::string m_strScore;
 
