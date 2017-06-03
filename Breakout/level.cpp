@@ -23,6 +23,7 @@
 #include "framecounter.h"
 #include "background.h"
 #include "Bullet.h"
+#include <math.h>
 
 // This Include
 #include "Level.h"
@@ -41,7 +42,9 @@ CLevel::CLevel()
 , m_pPlayer(0)
 , m_fPlayerMoveSpeed(150.0f)
 , m_fShootCoolDown(0.5f)
-, m_fInvaderMoveSpeedX(30.0f)
+, m_fInvaderShootCooldown(2.0f)
+, m_fInvaderShootTimer(0.0f)
+, m_fInvaderMoveSpeedX(20.0f)
 , m_fInvaderMoveSpeedY(21.0f)
 , m_fPlayerBulletSpeed(500.0f)
 , m_fInvaderBulletSpeed(200.0f)
@@ -310,6 +313,9 @@ CLevel::ProcessBulletsHitInvader()
 					m_vecInvaders.erase(m_vecInvaders.begin() + j);
 					delete temp2;
 
+					//Increase speed of other invaders
+					IncreaseInvaderSpeed();
+
 					break;
 
 				}
@@ -392,5 +398,29 @@ CLevel::ProcessInvadersReachBottom()
 void
 CLevel::EndGameScreen()
 {
-	CGame::GetInstance().GameEndScreen(m_iCurrentScore);
+	CGame::GetInstance().GameEndScreen(static_cast<float>(m_iCurrentScore));
+}
+
+void
+CLevel::IncreaseInvaderSpeed()
+{
+	//Case 1: No more invaders, nothing happens
+	if (m_vecInvaders.empty()) { return; }
+
+	float newSpeed = m_vecInvaders[0]->MoveSpeedX();
+
+	//Case 2: One invader left, super fast!
+	if (m_vecInvaders.size() == 1)
+	{
+		newSpeed += (newSpeed > 0) ? 300.0f : -300.0f;
+		m_vecInvaders[0]->SetMoveSpeedX(newSpeed);
+		return;
+	}
+
+	newSpeed += (newSpeed > 0) ? 1.5f : -1.5f;
+
+	for (unsigned int i = 0; i < m_vecInvaders.size(); i++)
+	{
+		m_vecInvaders[i]->SetMoveSpeedX(newSpeed);
+	}
 }

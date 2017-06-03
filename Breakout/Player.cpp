@@ -87,9 +87,9 @@ CPlayer::Process(float _fDeltaTick)
 	{
 		m_fX = fHalfPaddleW;
 	}
-	else if (m_fX + fHalfPaddleW >= 405)
+	else if (m_fX + fHalfPaddleW >= 485)
 	{
-		m_fX = 405 - fHalfPaddleW;
+		m_fX = 485 - fHalfPaddleW;
 	}
 
 	//Process other

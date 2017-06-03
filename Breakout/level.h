@@ -49,8 +49,11 @@ public:
 
 protected:
 	void MoveInvadersDown();
+
 	void ProcessInvadersInBounds();
 	bool ProcessPlayerFiringBullet();
+	bool ProcessInvaderFiringBullets();
+
 
 	void ProcessBulletsHitInvader();
 	void ProcessBulletsHitPlayer();
@@ -62,6 +65,8 @@ protected:
 	void EndGameScreen();
 
     void UpdateScoreText();
+
+	void IncreaseInvaderSpeed();
 
 	void DrawLives();
     void DrawScore();
@@ -88,7 +93,8 @@ protected:
 
 	int m_iNumLivesLeft;
 
-
+	float m_fInvaderShootCooldown;
+	float m_fInvaderShootTimer;
 
 	//Variables to be changed in debug window
 	float m_fPlayerMoveSpeed;
