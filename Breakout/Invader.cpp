@@ -28,7 +28,7 @@
 // Implementation
 
 CInvader::CInvader()
-	: m_bHit(false), m_fMoveSpeedX(30.0f), m_fMoveStepY(21.0f)
+	: m_fMoveSpeedX(30.0f), m_fMoveStepY(21.0f)
 {
 
 }
@@ -49,32 +49,14 @@ CInvader::Initialise()
 void
 CInvader::Draw()
 {
-	if (!m_bHit)
-	{
-		CEntity::Draw();
-	}
+	CEntity::Draw();
 }
 
 void
 CInvader::Process(float _fDeltaTick)
 {
-	if (!m_bHit)
-	{
-		m_fX += static_cast<float>(m_fMoveSpeedX) * _fDeltaTick;
-		CEntity::Process(_fDeltaTick);
-	}
-}
-
-void
-CInvader::SetHit(bool _b)
-{
-	m_bHit = _b;
-}
-
-bool
-CInvader::IsHit() const
-{
-	return (m_bHit);
+	m_fX += static_cast<float>(m_fMoveSpeedX) * _fDeltaTick;
+	CEntity::Process(_fDeltaTick);
 }
 
 float 

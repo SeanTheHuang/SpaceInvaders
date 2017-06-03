@@ -23,7 +23,6 @@
 
 // Local Includes
 #include "clock.h"
-
 // Types
 
 // Constants
@@ -50,8 +49,7 @@ public:
 	HINSTANCE GetAppInstance();
 	HWND GetWindow();
 
-	void GameOverWon();
-	void GameOverLost();
+	void GameEndScreen(float);
 
 	// Singleton Methods
 	static CGame& GetInstance();

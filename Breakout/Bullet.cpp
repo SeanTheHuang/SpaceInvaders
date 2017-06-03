@@ -73,3 +73,9 @@ CBullet::setBulletSpeed(float newSpeed)
 {
 	m_fMoveSpeed = newSpeed;
 }
+
+BULLET_OWNER
+CBullet::WhoFiredBullet()
+{
+	return m_eWhoFiredBullet;
+}

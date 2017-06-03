@@ -43,6 +43,9 @@ public:
 	bool CannonOffCooldown();
 	void setCannonOnCooldown();
 
+	void SetMoveSpeed(float);
+	void SetShotCooldown(float);
+
 protected:
 
 private:

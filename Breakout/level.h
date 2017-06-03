@@ -55,8 +55,15 @@ protected:
 	void ProcessBulletsHitInvader();
 	void ProcessBulletsHitPlayer();
 	void ProcessBulletsHitShield();
+	void ProcessBulletsInBound();
+
+	void ProcessInvadersReachBottom();
+
+	void EndGameScreen();
 
     void UpdateScoreText();
+
+	void DrawLives();
     void DrawScore();
 	void DrawFPS();
 
@@ -79,15 +86,24 @@ protected:
     int m_iWidth;
     int m_iHeight;
 
+	int m_iNumLivesLeft;
+
+
+
 	//Variables to be changed in debug window
-	int m_fInvaderMoveSpeed;
-	int m_fInvaderDropStep;
+	float m_fPlayerMoveSpeed;
+	float m_fShootCoolDown;
+
+	float m_fInvaderMoveSpeedX;
+	float m_fInvaderMoveSpeedY;
 
 	float m_fPlayerBulletSpeed;
 	float m_fInvaderBulletSpeed;
-	//=======================
-	int m_iCurrentScore;
 
+	int m_iPointsPerInvaderKill;
+	//=======================
+
+	int m_iCurrentScore;
     std::string m_strScore;
 
 private:

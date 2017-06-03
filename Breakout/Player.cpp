@@ -28,7 +28,7 @@
 // Implementation
 
 CPlayer::CPlayer()
-	: m_fMoveSpeed(100)
+	: m_fMoveSpeed(150)
 	, m_bFireOnCooldown(false)
 	, m_fBulletCooldown(0.5f)
 	, m_fBulletCooldownTimer(0)
@@ -72,7 +72,7 @@ CPlayer::Process(float _fDeltaTick)
 	}
 
 	//Process movement
-	float fHalfPaddleW = m_pSprite->GetWidth() / 2.0;
+	float fHalfPaddleW = m_pSprite->GetWidth() / 2.0f;
 
 	if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
 	{
@@ -98,3 +98,5 @@ CPlayer::Process(float _fDeltaTick)
 
 bool CPlayer::CannonOffCooldown() { return !m_bFireOnCooldown; }
 void CPlayer::setCannonOnCooldown() { m_bFireOnCooldown = true; }
+void CPlayer::SetMoveSpeed(float newSpeed) { m_fMoveSpeed = newSpeed; }
+void CPlayer::SetShotCooldown(float newCooldown) { m_fBulletCooldown = newCooldown; }

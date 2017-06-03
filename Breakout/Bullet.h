@@ -49,6 +49,8 @@ public:
 	void setBulletOwner(BULLET_OWNER);
 	void setBulletSpeed(float);
 
+	BULLET_OWNER WhoFiredBullet();
+
 protected:
 
 private:

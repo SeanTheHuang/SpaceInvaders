@@ -40,8 +40,6 @@ public:
 	virtual void Draw();
 	virtual void Process(float _fDeltaTick);
 
-	void SetHit(bool _b);
-	bool IsHit() const;
 
 	float MoveSpeedX();
 	void SetMoveSpeedX(float);
@@ -59,7 +57,6 @@ private:
 public:
 
 protected:
-	bool m_bHit;
 	float m_fMoveSpeedX;
 	float m_fMoveStepY;
 private:

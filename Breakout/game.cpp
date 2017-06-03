@@ -114,18 +114,16 @@ CGame::GetInstance()
 }
 
 void
-CGame::GameOverWon()
+CGame::GameEndScreen(float points)
 {
-	MessageBox(m_hMainWindow, L"Winner!", L"Game Over", MB_OK);
+	std::string temp = "Game Over!\n Your Final Score: " + ToString(points);
+	std::wstring temp2 = std::wstring(temp.begin(), temp.end());
+	const wchar_t* output = temp2.c_str();
+
+	MessageBox(m_hMainWindow, output, L"Thanks for playing!", MB_OK);
 	PostQuitMessage(0);
 }
 
-void
-CGame::GameOverLost()
-{
-	MessageBox(m_hMainWindow, L"Loser!", L"Game Over", MB_OK);
-	PostQuitMessage(0);
-}
 
 void
 CGame::DestroyInstance()

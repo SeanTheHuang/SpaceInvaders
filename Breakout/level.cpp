@@ -33,18 +33,20 @@
 
 // Implementation
 
-//#define CHEAT_BOUNCE_ON_BACK_WALL
-
 CLevel::CLevel()
 : m_iWidth(0)
 , m_iHeight(0)
+, m_iNumLivesLeft(3)
 , m_fpsCounter(0)
 , m_pPlayer(0)
-, m_fInvaderMoveSpeed(30.0f)
-, m_fInvaderDropStep(21.0f)
-, m_fPlayerBulletSpeed(180.0f)
-, m_fInvaderBulletSpeed(180.0f)
+, m_fPlayerMoveSpeed(150.0f)
+, m_fShootCoolDown(0.5f)
+, m_fInvaderMoveSpeedX(30.0f)
+, m_fInvaderMoveSpeedY(21.0f)
+, m_fPlayerBulletSpeed(500.0f)
+, m_fInvaderBulletSpeed(200.0f)
 , m_iCurrentScore(0)
+, m_iPointsPerInvaderKill(20)
 {
 
 }
@@ -80,6 +82,8 @@ CLevel::Initialise(int _iWidth, int _iHeight)
 	VALIDATE(m_pPlayer->Initialise());
 	m_pPlayer->SetX(static_cast<float>(_iWidth)/2);
 	m_pPlayer->SetY(static_cast<float>(_iHeight) - 25);
+	m_pPlayer->SetMoveSpeed(m_fPlayerMoveSpeed);
+	m_pPlayer->SetShotCooldown(m_fShootCoolDown);
 
 	//Create the invaders
     const int kiInvadersPerRow = 11;
@@ -104,8 +108,8 @@ CLevel::Initialise(int _iWidth, int _iHeight)
 
 			pInvader->SetX(static_cast<float>(iCurrentX));
 			pInvader->SetY(static_cast<float>(iCurrentY));
-			pInvader->SetMoveSpeedX(m_fInvaderMoveSpeed);
-			pInvader->SetMoveStepY(m_fInvaderDropStep);
+			pInvader->SetMoveSpeedX(m_fInvaderMoveSpeedX);
+			pInvader->SetMoveStepY(m_fInvaderMoveSpeedY);
 
 			iCurrentX += static_cast<int>(pInvader->GetWidth()) + kiGap;
 
@@ -123,7 +127,6 @@ CLevel::Initialise(int _iWidth, int _iHeight)
 void
 CLevel::Draw()
 {
-	//Draw Background (TODO??)
 
 	//Draw Bullets
 	for (unsigned int i = 0; i < m_vecBullets.size(); i++)
@@ -141,14 +144,13 @@ CLevel::Draw()
 	}
 
     DrawScore();
+	DrawLives();
 	DrawFPS();
 }
 
 void
 CLevel::Process(float _fDeltaTick)
 {
-	//Process Collisions
-
 	//Process Firing bullets
 	ProcessPlayerFiringBullet();
 
@@ -168,7 +170,12 @@ CLevel::Process(float _fDeltaTick)
 		m_vecInvaders[i]->Process(_fDeltaTick);
 	}
 
-   
+	//Process Collisions
+	ProcessBulletsHitInvader();
+	ProcessBulletsInBound();
+
+	ProcessInvadersReachBottom();
+
 	UpdateScoreText();
 	m_fpsCounter->CountFramesPerSecond(_fDeltaTick);
 }
@@ -185,6 +192,20 @@ CLevel::DrawScore()
     TextOutA(hdc, kiX, kiY, m_strScore.c_str(), static_cast<int>(m_strScore.size()));
 }
 
+void
+CLevel::DrawLives()
+{
+	HDC hdc = CGame::GetInstance().GetBackBuffer()->GetBFDC();
+
+	const int kiX = 120;
+	const int kiY = m_iHeight - 18;
+	SetBkMode(hdc, TRANSPARENT);
+
+	std::string output = "Lives: " + ToString(m_iNumLivesLeft);
+
+	TextOutA(hdc, kiX, kiY, output.c_str(), static_cast<int>(output.size()));
+}
+
 void 
 CLevel::UpdateScoreText()
 {
@@ -192,7 +213,6 @@ CLevel::UpdateScoreText()
 
     m_strScore += ToString(m_iCurrentScore);
 }
-
 
 void 
 CLevel::DrawFPS()
@@ -203,37 +223,34 @@ CLevel::DrawFPS()
 
 }
 
-void CLevel::ProcessInvadersInBounds()
+void 
+CLevel::ProcessInvadersInBounds()
 {
 
 	for (unsigned int i = 0; i < m_vecInvaders.size(); i++)
 	{
-		if (m_vecInvaders[i]->IsHit() == false)
+
+		float leftBound = m_vecInvaders[i]->GetX() - m_vecInvaders[i]->GetWidth() /2;
+		float rightBound = m_vecInvaders[i]->GetX() + m_vecInvaders[i]->GetWidth() / 2;
+		if ((leftBound <= 0 && m_vecInvaders[i]->MoveSpeedX() < 0)
+			|| (rightBound >= m_iWidth) && m_vecInvaders[i]->MoveSpeedX() > 0)
 		{
-			int leftBound = m_vecInvaders[i]->GetX() - m_vecInvaders[i]->GetWidth() /2;
-			int rightBound =m_vecInvaders[i]->GetX() + m_vecInvaders[i]->GetWidth() / 2;
-			if ((leftBound <= 0 && m_vecInvaders[i]->MoveSpeedX() < 0)
-				|| (rightBound >= m_iWidth) && m_vecInvaders[i]->MoveSpeedX() > 0)
-			{
-				MoveInvadersDown();	//Hit edge of screen,
-				break;				//edit invader's position and movement
-			}
+			MoveInvadersDown();	//Hit edge of screen,
+			break;				//edit invader's position and movement
 		}
+		
 	}
 }
 
-void CLevel::MoveInvadersDown()
+void 
+CLevel::MoveInvadersDown()
 {
 	for (unsigned int i = 0; i < m_vecInvaders.size(); i++)
 	{
-		if (m_vecInvaders[i]->IsHit() == false) 
-		{
-			m_vecInvaders[i]->SetY(m_vecInvaders[i]->GetY() + m_vecInvaders[i]->MoveStepY());
-			m_vecInvaders[i]->SetMoveSpeedX(m_vecInvaders[i]->MoveSpeedX() * -1);
-		}
+		m_vecInvaders[i]->SetY(m_vecInvaders[i]->GetY() + m_vecInvaders[i]->MoveStepY());
+		m_vecInvaders[i]->SetMoveSpeedX(m_vecInvaders[i]->MoveSpeedX() * -1);
 	}
 }
-
 
 bool
 CLevel::ProcessPlayerFiringBullet()
@@ -253,4 +270,127 @@ CLevel::ProcessPlayerFiringBullet()
 
 		m_pPlayer->setCannonOnCooldown();
 	}
+
+	return true;
+}
+
+void
+CLevel::ProcessBulletsHitInvader()
+{
+	for (unsigned int i = 0; i < m_vecBullets.size(); i++) //For each bullet
+	{
+		for (unsigned int j = 0; j < m_vecInvaders.size(); j++) //Check collision with Invaders
+		{
+			if (m_vecBullets[i]->WhoFiredBullet() == PLAYER)
+			{
+				float bX = m_vecBullets[i]->GetX();
+				float bY = m_vecBullets[i]->GetY();
+				float bW = m_vecBullets[i]->GetWidth();
+				float bH = m_vecBullets[i]->GetHeight();
+
+				float iX = m_vecInvaders[j]->GetX();
+				float iY = m_vecInvaders[j]->GetY();
+				float iW = m_vecInvaders[j]->GetWidth();
+				float iH = m_vecInvaders[j]->GetHeight();
+
+				if ((bX + bW/2 > iX - iW / 2) &&
+					(bX - bW/2 < iX + iW / 2) &&
+					(bY + bH/2 > iY - iH / 2) &&
+					(bY - bH/2 < iY + iH / 2))
+				{
+
+					//Collision happened!
+					m_iCurrentScore += m_iPointsPerInvaderKill;
+
+					CBullet* temp = m_vecBullets[i];
+					m_vecBullets.erase(m_vecBullets.begin() + i);
+					delete temp;
+					
+					CInvader* temp2 = m_vecInvaders[j];
+					m_vecInvaders.erase(m_vecInvaders.begin() + j);
+					delete temp2;
+
+					break;
+
+				}
+			}
+		}
+	}
+}
+
+void 
+CLevel::ProcessBulletsInBound()
+{
+	for (unsigned int i = 0; i < m_vecBullets.size(); i++)
+	{
+		if (m_vecBullets[i]->GetY() + m_vecBullets[i]->GetHeight() > m_iHeight+50 ||
+			m_vecBullets[i]->GetY() - m_vecBullets[i]->GetHeight() < -50)
+		{
+			CBullet* temp = m_vecBullets[i];
+			m_vecBullets.erase(m_vecBullets.begin() + i);
+			delete temp;
+
+			if (i != 0)
+			{
+				i--;
+			}
+				
+		}
+	}
+}
+
+void
+CLevel::ProcessBulletsHitPlayer()
+{
+	float pX = m_pPlayer->GetX();
+	float pY = m_pPlayer->GetY();
+	float pW = m_pPlayer->GetWidth();
+	float pH = m_pPlayer->GetHeight();
+
+
+	for (unsigned int i = 0; i < m_vecBullets.size(); i++) //For each bullet
+	{
+
+		float bX = m_vecBullets[i]->GetX();
+		float bY = m_vecBullets[i]->GetY();
+		float bW = m_vecBullets[i]->GetWidth();
+		float bH = m_vecBullets[i]->GetHeight();
+
+		if ((bX + bW / 2 > pX - pW / 2) &&
+			(bX - bW / 2 < pX + pW / 2) &&
+			(bY + bH / 2 > pY - pH / 2) &&
+			(bY - bH / 2 < pY + pH / 2))
+		{
+
+			//Collision happened! Player got hurt!
+			m_iNumLivesLeft--;
+
+			if (m_iNumLivesLeft < 1)	//Ran out of lives!
+			{
+				EndGameScreen();
+			}
+			break;
+
+		}
+		
+		
+	}
+}
+
+void
+CLevel::ProcessInvadersReachBottom()
+{
+	for (unsigned int i = 0; i < m_vecInvaders.size(); i++)
+	{
+		if (m_vecInvaders[i]->GetY() > m_iHeight)
+		{
+			EndGameScreen();
+		}
+	}
+}
+
+void
+CLevel::EndGameScreen()
+{
+	CGame::GetInstance().GameEndScreen(m_iCurrentScore);
 }
