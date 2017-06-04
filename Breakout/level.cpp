@@ -354,7 +354,7 @@ CLevel::ProcessPlayerFiringBullet()
 		bullet->SetX(m_pPlayer->GetX());
 		bullet->SetY(m_pPlayer->GetY() - bullet->GetHeight() / 2);
 		bullet->setBulletOwner(PLAYER);
-		bullet->setBulletSpeed(m_fPlayerBulletSpeed * -1.0f); //Make sure bullet going up
+		bullet->setBulletSpeed(m_fPlayerBulletSpeed);
 
 		m_vecBullets.push_back(bullet);
 
@@ -712,3 +712,112 @@ CLevel::ProcessInvaderFiringBullets(float _fDeltaTick)
 	return true;
 }
 
+
+//GET AND SET FUN TIME FOR EVERYONE
+float CLevel::GetPlayerMoveSpeed()
+{
+	return m_fPlayerMoveSpeed;
+}
+
+void CLevel::SetPlayerMoveSpeed(float newVal)
+{
+	m_fPlayerMoveSpeed = newVal;
+	m_pPlayer->SetMoveSpeed(newVal);
+
+}
+
+float CLevel::GetPlayerShootCooldown()
+{
+	return GetPlayerShootCooldown();
+}
+
+void CLevel::SetPlayerShootCooldown(float newVal)
+{
+	SetPlayerShootCooldown(newVal);
+}
+
+float CLevel::GetInvaderShootCooldown()
+{
+	return m_fInvaderShootCooldown;
+}
+
+void CLevel::SetInvaderShootCooldown(float newVal)
+{
+	m_fInvaderShootCooldown = newVal;
+}
+
+float CLevel::GetInvaderMoveSpeedX()
+{
+	return m_fInvaderMoveSpeedX;
+}
+
+float CLevel::GetInvaderMoveSpeedY()
+{
+	return m_fInvaderMoveSpeedY;
+}
+
+void CLevel::SetInvaderMoveSpeedX(float newVal)
+{
+	m_fInvaderMoveSpeedX = newVal;
+
+	for (unsigned int i = 0; i < m_vecInvaders.size(); i++)
+	{
+		m_vecInvaders[i]->SetMoveSpeedX(newVal);
+	}
+}
+
+void CLevel::SetInvaderMoveSpeedY(float newVal)
+{
+	m_fInvaderMoveSpeedY = newVal;
+
+	for (unsigned int i = 0; i < m_vecInvaders.size(); i++)
+	{
+		m_vecInvaders[i]->SetMoveStepY(newVal);
+	}
+}
+
+float CLevel::GetSpecialShipCooldown()
+{
+	return m_fSpecialShipSpawnCooldown;
+}
+
+void CLevel::SetSpecialShipCooldown(float newVal)
+{
+	m_fSpecialShipSpawnCooldown = newVal;
+}
+
+float CLevel::GetPlayerBulletSpeed()
+{
+	return m_fPlayerBulletSpeed;
+}
+
+void CLevel::SetPlayerBulletSpeed(float newVal)
+{
+	m_fPlayerBulletSpeed = newVal;
+
+	for (unsigned int i = 0; i < m_vecBullets.size(); i++)
+	{
+		if (m_vecBullets[i]->WhoFiredBullet() == PLAYER)
+		{
+			m_vecBullets[i]->setBulletSpeed(newVal);
+		}
+	}
+}
+
+float CLevel::GetInvaderBulletSpeed()
+{
+	return m_fInvaderBulletSpeed;
+}
+
+void CLevel::SetInvaderBulletSpeed(float newVal)
+{
+	m_fInvaderBulletSpeed = newVal;
+
+	for (unsigned int i = 0; i < m_vecBullets.size(); i++)
+	{
+		if (m_vecBullets[i]->WhoFiredBullet() == INVADER)
+		{
+			m_vecBullets[i]->setBulletSpeed(newVal);
+		}
+	}
+}

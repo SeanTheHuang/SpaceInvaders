@@ -77,6 +77,31 @@ protected:
     void DrawScore();
 	void DrawFPS();
 
+	//Getters and Setters
+	//This is going to be great
+	float GetPlayerMoveSpeed();
+	void SetPlayerMoveSpeed(float);
+
+	float GetPlayerShootCooldown();
+	void SetPlayerShootCooldown(float);
+
+	float GetInvaderShootCooldown();
+	void SetInvaderShootCooldown(float);
+
+	float GetInvaderMoveSpeedX();
+	float GetInvaderMoveSpeedY();
+	void SetInvaderMoveSpeedX(float);
+	void SetInvaderMoveSpeedY(float);
+
+	float GetSpecialShipCooldown();
+	void SetSpecialShipCooldown(float);
+
+	float GetPlayerBulletSpeed();
+	void SetPlayerBulletSpeed(float);
+
+	float GetInvaderBulletSpeed();
+	void SetInvaderBulletSpeed(float);
+
 private:
     CLevel(const CLevel& _kr);
     CLevel& operator= (const CLevel& _kr);

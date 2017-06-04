@@ -56,7 +56,11 @@ CBullet::Draw()
 void
 CBullet::Process(float _fDeltaTick)
 {
-	m_fY += m_fMoveSpeed * _fDeltaTick;
+	if (m_eWhoFiredBullet == PLAYER)
+		m_fY -= m_fMoveSpeed * _fDeltaTick;
+
+	else if (m_eWhoFiredBullet == INVADER)
+		m_fY += m_fMoveSpeed * _fDeltaTick;
 
 	//Process other
 	CEntity::Process(_fDeltaTick);
