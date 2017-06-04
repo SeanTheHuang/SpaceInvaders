@@ -49,7 +49,8 @@ public:
 	HINSTANCE GetAppInstance();
 	HWND GetWindow();
 
-	void GameEndScreen(float);
+	void GameEndLost(float);
+	void GameEndWin(float);
 
 	// Singleton Methods
 	static CGame& GetInstance();

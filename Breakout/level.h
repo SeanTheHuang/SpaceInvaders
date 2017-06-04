@@ -34,6 +34,8 @@ class CInvader;
 class CFPSCounter;
 class CBackGround;
 class CBullet;
+class CShield;
+class CSpecialShip;
 
 class CLevel
 {
@@ -52,14 +54,16 @@ protected:
 
 	void ProcessInvadersInBounds();
 	bool ProcessPlayerFiringBullet();
-	bool ProcessInvaderFiringBullets();
+	bool ProcessInvaderFiringBullets(float _fDeltaTick);
 
 
-	void ProcessBulletsHitInvader();
-	void ProcessBulletsHitPlayer();
+	void ProcessBulletsHitInvader();	//Win condition is also in here!
+	void ProcessBulletsHitPlayer();		// i.e. [all invaders are killed]
 	void ProcessBulletsHitShield();
 	void ProcessBulletsInBound();
+	void ProcessSpecialShipCollision();
 
+	bool ProcessSpawnSpecialShip(float _deltaTick);
 	void ProcessInvadersReachBottom();
 
 	void EndGameScreen();
@@ -68,6 +72,7 @@ protected:
 
 	void IncreaseInvaderSpeed();
 
+	void DrawShieldLives();
 	void DrawLives();
     void DrawScore();
 	void DrawFPS();
@@ -84,9 +89,10 @@ protected:
 
 	std::vector<CInvader*> m_vecInvaders;
 	std::vector<CBullet*> m_vecBullets;
-	
+	std::vector<CShield*> m_vecShields;
 
 	CFPSCounter* m_fpsCounter;
+	CSpecialShip* m_ssShip;
 
     int m_iWidth;
     int m_iHeight;
@@ -95,6 +101,9 @@ protected:
 
 	float m_fInvaderShootCooldown;
 	float m_fInvaderShootTimer;
+
+	float m_fSpecialShipSpawnTimer;
+	float m_fSpecialShipSpawnCooldown;
 
 	//Variables to be changed in debug window
 	float m_fPlayerMoveSpeed;

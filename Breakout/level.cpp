@@ -24,6 +24,9 @@
 #include "background.h"
 #include "Bullet.h"
 #include <math.h>
+#include <time.h>
+#include "Shields.h"
+#include "SpecialShip.h"
 
 // This Include
 #include "Level.h"
@@ -42,14 +45,17 @@ CLevel::CLevel()
 , m_pPlayer(0)
 , m_fPlayerMoveSpeed(150.0f)
 , m_fShootCoolDown(0.5f)
-, m_fInvaderShootCooldown(2.0f)
+, m_fInvaderShootCooldown(1.5f)
 , m_fInvaderShootTimer(0.0f)
 , m_fInvaderMoveSpeedX(20.0f)
 , m_fInvaderMoveSpeedY(21.0f)
+, m_fSpecialShipSpawnCooldown(10.0f)
+, m_fSpecialShipSpawnTimer(0.0f)
 , m_fPlayerBulletSpeed(500.0f)
-, m_fInvaderBulletSpeed(200.0f)
+, m_fInvaderBulletSpeed(300.0f)
 , m_iCurrentScore(0)
-, m_iPointsPerInvaderKill(20)
+, m_iPointsPerInvaderKill(16)
+, m_ssShip(nullptr)
 {
 
 }
@@ -65,6 +71,21 @@ CLevel::~CLevel()
         delete pInvader;
     }
 
+	while (m_vecBullets.size() > 0)
+	{
+		CBullet* pBullet = m_vecBullets[m_vecBullets.size() - 1];
+
+		m_vecBullets.pop_back();
+
+		delete pBullet;
+	}
+
+	if (m_ssShip != nullptr)
+	{
+		delete m_ssShip;
+		m_ssShip = nullptr;
+	}
+
 	delete m_fpsCounter;
 	m_fpsCounter = 0;
 
@@ -76,6 +97,8 @@ CLevel::~CLevel()
 bool
 CLevel::Initialise(int _iWidth, int _iHeight)
 {
+	srand((unsigned int)time(NULL));
+
 	//Window size
     m_iWidth = _iWidth;
     m_iHeight = _iHeight;
@@ -88,6 +111,26 @@ CLevel::Initialise(int _iWidth, int _iHeight)
 	m_pPlayer->SetMoveSpeed(m_fPlayerMoveSpeed);
 	m_pPlayer->SetShotCooldown(m_fShootCoolDown);
 
+	const float kiShieldY = 500;
+	const float kiShieldStartX = 90;
+	const float kiShieldSpacing = 80;
+
+	float iCurrentX = kiShieldStartX;
+	float iCurrentY = kiShieldY;
+
+	//Create the shields
+	for (int i = 0; i < 3; i++)
+	{
+		CShield* pShield = new CShield();
+		VALIDATE(pShield->Initialise());
+		pShield->SetX(iCurrentX);
+		pShield->SetY(iCurrentY);
+
+		m_vecShields.push_back(pShield);
+
+		iCurrentX += pShield->GetWidth() + kiShieldSpacing;
+	}
+
 	//Create the invaders
     const int kiInvadersPerRow = 11;
 	const int kiRowsOfInvaders = 5;
@@ -95,13 +138,12 @@ CLevel::Initialise(int _iWidth, int _iHeight)
 	const int kiStartY = 80;
     const int kiGap = 5;
 
-    int iCurrentX = kiStartX;
-    int iCurrentY = kiStartY;
-
+    iCurrentX = kiStartX;
+    iCurrentY = kiStartY;
 	
 	for (int i = 0; i < kiRowsOfInvaders; i++)
 	{
-		iCurrentY = kiStartY + (i * 21);
+		iCurrentY = kiStartY + ((float)i * 21);
 		iCurrentX = kiStartX;
 
 		for (int i = 0; i < kiInvadersPerRow; i++)
@@ -109,12 +151,12 @@ CLevel::Initialise(int _iWidth, int _iHeight)
 			CInvader* pInvader = new CInvader();
 			VALIDATE(pInvader->Initialise());
 
-			pInvader->SetX(static_cast<float>(iCurrentX));
-			pInvader->SetY(static_cast<float>(iCurrentY));
+			pInvader->SetX(iCurrentX);
+			pInvader->SetY(iCurrentY);
 			pInvader->SetMoveSpeedX(m_fInvaderMoveSpeedX);
 			pInvader->SetMoveStepY(m_fInvaderMoveSpeedY);
 
-			iCurrentX += static_cast<int>(pInvader->GetWidth()) + kiGap;
+			iCurrentX += pInvader->GetWidth() + kiGap;
 
 			m_vecInvaders.push_back(pInvader);
 		}
@@ -146,6 +188,19 @@ CLevel::Draw()
 		m_vecInvaders[i]->Draw();
 	}
 
+	//Draw shields
+	for (unsigned int i = 0; i < m_vecShields.size(); i++)
+	{
+		m_vecShields[i]->Draw();
+	}
+
+	//Draw special ship
+	if (m_ssShip != nullptr)
+	{
+		m_ssShip->Draw();
+	}
+
+	DrawShieldLives();
     DrawScore();
 	DrawLives();
 	DrawFPS();
@@ -156,6 +211,7 @@ CLevel::Process(float _fDeltaTick)
 {
 	//Process Firing bullets
 	ProcessPlayerFiringBullet();
+	ProcessInvaderFiringBullets(_fDeltaTick);
 
 	//Bullet process
 	for (unsigned int i = 0; i < m_vecBullets.size(); i++)
@@ -166,6 +222,12 @@ CLevel::Process(float _fDeltaTick)
 	//Player process
 	m_pPlayer->Process(_fDeltaTick);
 
+	//Shields process
+	for (unsigned int i = 0; i < m_vecShields.size(); i++)
+	{
+		m_vecShields[i]->Process(_fDeltaTick);
+	}
+
 	//Invader Process
 	ProcessInvadersInBounds();
 	for (unsigned int i = 0; i < m_vecInvaders.size(); ++i)
@@ -173,11 +235,22 @@ CLevel::Process(float _fDeltaTick)
 		m_vecInvaders[i]->Process(_fDeltaTick);
 	}
 
+	ProcessSpawnSpecialShip(_fDeltaTick);
+
 	//Process Collisions
 	ProcessBulletsHitInvader();
+	ProcessBulletsHitPlayer();
 	ProcessBulletsInBound();
-
+	ProcessBulletsHitShield();
+	ProcessSpecialShipCollision();
 	ProcessInvadersReachBottom();
+	//======================
+
+	//Special Ship Process
+	if (m_ssShip != nullptr)
+	{
+		m_ssShip->Process(_fDeltaTick);
+	}
 
 	UpdateScoreText();
 	m_fpsCounter->CountFramesPerSecond(_fDeltaTick);
@@ -193,6 +266,20 @@ CLevel::DrawScore()
 	SetBkMode(hdc, TRANSPARENT);
     
     TextOutA(hdc, kiX, kiY, m_strScore.c_str(), static_cast<int>(m_strScore.size()));
+}
+
+void
+CLevel::DrawShieldLives()
+{
+	HDC hdc = CGame::GetInstance().GetBackBuffer()->GetBFDC();
+
+	for (unsigned int i = 0; i < m_vecShields.size(); i++)
+	{
+		std::string output = ToString(m_vecShields[i]->CurrentLivesLeft());
+		float iX = m_vecShields[i]->GetX() - 3;
+		float iY = m_vecShields[i]->GetY() - 15;
+		TextOutA(hdc, (int)iX, (int)iY, output.c_str(), static_cast<int>(output.size()));
+	}
 }
 
 void
@@ -316,6 +403,12 @@ CLevel::ProcessBulletsHitInvader()
 					//Increase speed of other invaders
 					IncreaseInvaderSpeed();
 
+					//GAME WIN CONDITION
+					if (m_vecInvaders.empty())
+					{
+						CGame::GetInstance().GameEndWin((float)m_iCurrentScore);
+					}
+
 					break;
 
 				}
@@ -356,27 +449,32 @@ CLevel::ProcessBulletsHitPlayer()
 
 	for (unsigned int i = 0; i < m_vecBullets.size(); i++) //For each bullet
 	{
+		if (m_vecBullets[i]->WhoFiredBullet() == INVADER){
 
-		float bX = m_vecBullets[i]->GetX();
-		float bY = m_vecBullets[i]->GetY();
-		float bW = m_vecBullets[i]->GetWidth();
-		float bH = m_vecBullets[i]->GetHeight();
+			float bX = m_vecBullets[i]->GetX();
+			float bY = m_vecBullets[i]->GetY();
+			float bW = m_vecBullets[i]->GetWidth();
+			float bH = m_vecBullets[i]->GetHeight();
 
-		if ((bX + bW / 2 > pX - pW / 2) &&
-			(bX - bW / 2 < pX + pW / 2) &&
-			(bY + bH / 2 > pY - pH / 2) &&
-			(bY - bH / 2 < pY + pH / 2))
-		{
-
-			//Collision happened! Player got hurt!
-			m_iNumLivesLeft--;
-
-			if (m_iNumLivesLeft < 1)	//Ran out of lives!
+			if ((bX + bW / 2 > pX - pW / 2) &&
+				(bX - bW / 2 < pX + pW / 2) &&
+				(bY + bH / 2 > pY - pH / 2) &&
+				(bY - bH / 2 < pY + pH / 2))
 			{
-				EndGameScreen();
-			}
-			break;
 
+				//Collision happened! Player got hurt!
+				m_iNumLivesLeft--;
+
+				CBullet* temp = m_vecBullets[i];
+				m_vecBullets.erase(m_vecBullets.begin() + i);
+				delete temp;
+
+				if (m_iNumLivesLeft < 1)	//Ran out of lives!
+				{
+					EndGameScreen();
+				}
+				break;
+			}
 		}
 		
 		
@@ -398,7 +496,130 @@ CLevel::ProcessInvadersReachBottom()
 void
 CLevel::EndGameScreen()
 {
-	CGame::GetInstance().GameEndScreen(static_cast<float>(m_iCurrentScore));
+	CGame::GetInstance().GameEndLost(static_cast<float>(m_iCurrentScore));
+}
+
+void
+CLevel::ProcessBulletsHitShield()
+{
+	for (unsigned int i = 0; i < m_vecShields.size(); i++) //For each shield
+	{
+		for (unsigned int j = 0; j < m_vecBullets.size(); j++) //Check with each bullet
+		{
+			//See if collision
+
+			float bX = m_vecBullets[j]->GetX();		//Bullet values
+			float bY = m_vecBullets[j]->GetY();
+			float bW = m_vecBullets[j]->GetWidth();
+			float bH = m_vecBullets[j]->GetHeight();
+
+			float sX = m_vecShields[i]->GetX();		//Shield values
+			float sY = m_vecShields[i]->GetY();
+			float sW = m_vecShields[i]->GetWidth();
+			float sH = m_vecShields[i]->GetHeight();
+
+			if ((bX + bW / 2 > sX - sW / 2) &&
+				(bX - bW / 2 < sX + sW / 2) &&
+				(bY + bH / 2 > sY - sH / 2) &&
+				(bY - bH / 2 < sY + sH / 2))
+			{
+
+				//Collision happened!
+
+				CBullet* temp = m_vecBullets[j];
+				m_vecBullets.erase(m_vecBullets.begin() + j);
+				delete temp;
+
+
+				m_vecShields[i]->ShieldWasHit();
+
+				if (m_vecShields[i]->CurrentLivesLeft() < 1)
+				{
+					CShield* temp2 = m_vecShields[i];
+					m_vecShields.erase(m_vecShields.begin() + i);
+					delete temp2;
+				}
+
+				break;
+			}
+		}
+	}
+}
+
+void 
+CLevel::ProcessSpecialShipCollision()
+{
+	if (m_ssShip == nullptr)	//Do not process if special ship is dead
+	{
+		return;
+	}
+
+	float sX = m_ssShip->GetX();	//Special ship stats
+	float sY = m_ssShip->GetY();
+	float sW = m_ssShip->GetWidth();
+	float sH = m_ssShip->GetHeight();
+
+
+	for (unsigned int i = 0; i < m_vecBullets.size(); i++) //For each bullet
+	{
+		if (m_vecBullets[i]->WhoFiredBullet() == PLAYER) {
+
+			float bX = m_vecBullets[i]->GetX();
+			float bY = m_vecBullets[i]->GetY();
+			float bW = m_vecBullets[i]->GetWidth();
+			float bH = m_vecBullets[i]->GetHeight();
+
+			if ((bX + bW / 2 > sX - sW / 2) &&
+				(bX - bW / 2 < sX + sW / 2) &&
+				(bY + bH / 2 > sY - sH / 2) &&
+				(bY - bH / 2 < sY + sH / 2))
+			{
+
+				//Collision happened! special ship down!!
+				delete m_ssShip;
+				m_ssShip = nullptr;
+
+				m_iCurrentScore += (m_iPointsPerInvaderKill * 10);
+
+				CBullet* temp = m_vecBullets[i];
+				m_vecBullets.erase(m_vecBullets.begin() + i);
+				delete temp;
+
+				return;
+			}
+		}
+	}
+
+	//Check if special ship is out of bounds
+	if (m_ssShip->GetX() > m_iWidth + 100)
+	{
+		delete m_ssShip;
+		m_ssShip = nullptr;
+	}
+}
+
+bool 
+CLevel::ProcessSpawnSpecialShip(float _deltaTick)
+{
+	if (m_ssShip != nullptr)	//Logic does not run if special ship is alive
+	{
+		return true;
+	}
+
+	m_fSpecialShipSpawnTimer += _deltaTick;
+
+	if (m_fSpecialShipSpawnTimer >= m_fSpecialShipSpawnCooldown)
+	{
+		m_fSpecialShipSpawnTimer = 0.0f;
+
+		m_ssShip = new CSpecialShip();
+		VALIDATE(m_ssShip->Initialise());
+		m_ssShip->SetX(-100.0f);
+		m_ssShip->SetY(40);
+	}
+
+
+	return true;
 }
 
 void
@@ -417,10 +638,77 @@ CLevel::IncreaseInvaderSpeed()
 		return;
 	}
 
-	newSpeed += (newSpeed > 0) ? 1.5f : -1.5f;
+	newSpeed += (newSpeed > 0) ? 2.0f : -2.0f;
 
 	for (unsigned int i = 0; i < m_vecInvaders.size(); i++)
 	{
 		m_vecInvaders[i]->SetMoveSpeedX(newSpeed);
 	}
 }
+
+bool
+CLevel::ProcessInvaderFiringBullets(float _fDeltaTick)
+{
+	if (m_vecInvaders.empty()) { return true; }
+
+	//Shooting: After firing cooldown, X number of invaders will shoot downwards
+	// X = 1 + (1 per every 10 invaders)
+	//i.e. 5 invaders left = 1 bullet, 35 invaders left = 4 bullets
+	
+	//If multiple bullets end up in the same spot, only the first one is created
+
+	m_fInvaderShootTimer += _fDeltaTick;
+	if (m_fInvaderShootTimer >= m_fInvaderShootCooldown)
+	{
+		m_fInvaderShootTimer = 0.0f;	//Reset timer for next shot
+
+		std::vector<CBullet*> tempBulletVec;
+
+		int numShots = 1 + static_cast<int>(m_vecInvaders.size() / 10);
+
+		for (int i = 0; i < numShots; i++)
+		{
+			//Randomly pick an invader to shoot from
+			int randIndex = rand() % m_vecInvaders.size();
+			float newX = m_vecInvaders[randIndex]->GetX();
+			float newY = m_vecInvaders[randIndex]->GetY();
+			
+
+			bool spotTaken = false;
+			//Check if bullet position collides with any other
+			for (unsigned int j = 0; j < tempBulletVec.size(); j++)
+			{
+				if (tempBulletVec[j]->GetX() == newX && tempBulletVec[j]->GetY() == newY)
+				{
+					//Duplicate bullet created
+					spotTaken = true;
+					break;
+				}
+			}
+
+			//If bullet was not duplicate, create bullet now
+			if (!spotTaken)
+			{
+				CBullet* newBullet = new CBullet();
+				VALIDATE(newBullet->Initialise());
+				newBullet->SetX(newX);
+				newBullet->SetY(newY);
+				newBullet->setBulletSpeed(m_fInvaderBulletSpeed);
+				newBullet->setBulletOwner(INVADER);
+
+				tempBulletVec.push_back(newBullet);
+			}
+		}
+
+		//Once done creating all bullets, put bullets into main bullet vector
+		for (unsigned int i = 0; i < tempBulletVec.size(); i++)
+		{
+			m_vecBullets.push_back(tempBulletVec[i]);
+		}
+
+
+	}
+
+	return true;
+}
+

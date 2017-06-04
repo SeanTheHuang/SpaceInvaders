@@ -106,7 +106,7 @@ int WINAPI WinMain(HINSTANCE _hInstance, HINSTANCE _hPrevInstance, LPSTR _lpCmdl
 	ZeroMemory(&msg, sizeof(MSG));
 
 
-	HWND hwnd = CreateAndRegisterWindow(_hInstance, kiWidth, kiHeight, L"Sean's Space Invaders");
+	HWND hwnd = CreateAndRegisterWindow(_hInstance, kiWidth, kiHeight, L"Unhappy Invaders");
 
 	CGame& rGame = CGame::GetInstance();
 	

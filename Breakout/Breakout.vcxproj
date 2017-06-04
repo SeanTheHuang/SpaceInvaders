@@ -94,6 +94,8 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="paddle.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Shields.cpp" />
+    <ClCompile Include="SpecialShip.cpp" />
     <ClCompile Include="sprite.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -111,6 +113,8 @@
     <ClInclude Include="paddle.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Shields.h" />
+    <ClInclude Include="SpecialShip.h" />
     <ClInclude Include="sprite.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
@@ -126,10 +130,14 @@
     <Image Include="Sprites\BrickSprite.bmp" />
     <Image Include="Sprites\BulletMask.bmp" />
     <Image Include="Sprites\BulletSprite.bmp" />
+    <Image Include="Sprites\extraShip.bmp" />
+    <Image Include="Sprites\extraShipMask.bmp" />
     <Image Include="Sprites\Invader.bmp" />
     <Image Include="Sprites\InvaderMask.bmp" />
     <Image Include="Sprites\PaddleMask.bmp" />
     <Image Include="Sprites\PaddleSprite.bmp" />
+    <Image Include="Sprites\ShieldMask.bmp" />
+    <Image Include="Sprites\ShieldSprite.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
