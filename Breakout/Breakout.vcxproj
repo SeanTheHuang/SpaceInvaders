@@ -81,9 +81,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="backbuffer.cpp" />
-    <ClCompile Include="background.cpp" />
-    <ClCompile Include="ball.cpp" />
-    <ClCompile Include="brick.cpp" />
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="clock.cpp" />
     <ClCompile Include="entity.cpp" />
@@ -92,7 +89,6 @@
     <ClCompile Include="Invader.cpp" />
     <ClCompile Include="level.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="paddle.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Shields.cpp" />
     <ClCompile Include="SpecialShip.cpp" />
@@ -100,9 +96,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="backbuffer.h" />
-    <ClInclude Include="background.h" />
-    <ClInclude Include="ball.h" />
-    <ClInclude Include="brick.h" />
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="clock.h" />
     <ClInclude Include="entity.h" />
@@ -110,7 +103,6 @@
     <ClInclude Include="game.h" />
     <ClInclude Include="Invader.h" />
     <ClInclude Include="level.h" />
-    <ClInclude Include="paddle.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Shields.h" />

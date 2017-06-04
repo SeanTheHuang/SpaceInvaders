@@ -46,6 +46,7 @@ public:
 
 	CBackBuffer* GetBackBuffer();
 	CLevel* GetLevel();
+	CClock* GetClock();
 	HINSTANCE GetAppInstance();
 	HWND GetWindow();
 

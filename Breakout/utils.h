@@ -4,12 +4,12 @@
 // Auckland
 // New Zealand
 //
-// (c) 2016 Media Design School
+// (c) 2017 Media Design School
 //
 // File Name	: 
 // Description	: 
-// Author		: Your Name
-// Mail			: your.name@mediadesign.school.nz
+// Author		: Sean Huang
+// Mail			: sean.hua7281@mediadesign.school.nz
 //
 
 #pragma once
@@ -18,7 +18,11 @@
 #define __UTILS_H__
 
 // Library Includes
+#include <Windows.h>
 #include <strstream>
+#include <sstream>
+#include <string>
+
 
 // Local Includes
 
@@ -33,11 +37,10 @@
 template<typename T>
 std::string ToString(const T& _value)
 {
-    std::strstream theStream;
-    theStream << _value << std::ends;
-    return (theStream.str());
+	std::strstream theStream;
+	theStream << _value << std::ends;
+	return (theStream.str());
 }
-
 
 #endif    // __UTILS_H__
 

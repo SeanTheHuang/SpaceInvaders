@@ -78,6 +78,18 @@ CClock::Process()
 	m_fTimeElapsed += m_fDeltaTime;
 }
 
+void
+CClock::ResetDeltaTick()
+{
+	__int64 currTime;
+
+	QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
+
+	m_fCurrentTime = static_cast<double>(currTime);
+
+	m_fLastTime = m_fCurrentTime;
+}
+
 //void
 //CClock::Process()
 //{

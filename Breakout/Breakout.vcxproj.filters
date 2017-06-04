@@ -30,25 +30,13 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ball.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="brick.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="level.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="paddle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="entity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="framecounter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="background.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Invader.cpp">
@@ -83,25 +71,13 @@
     <ClInclude Include="utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ball.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="brick.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="level.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="paddle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="framecounter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="background.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game.h">
@@ -147,12 +123,6 @@
     <Image Include="Sprites\PaddleSprite.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Sprites\Background.bmp">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Sprites\BackgroundMask.bmp">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="Sprites\Invader.bmp">
       <Filter>Resource Files</Filter>
     </Image>
@@ -175,6 +145,12 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Sprites\extraShipMask.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Sprites\Background.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Sprites\BackgroundMask.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

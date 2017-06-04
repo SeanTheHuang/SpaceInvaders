@@ -21,7 +21,6 @@
 #include "utils.h"
 #include "backbuffer.h"
 #include "framecounter.h"
-#include "background.h"
 #include "Bullet.h"
 #include <math.h>
 #include <time.h>
@@ -728,12 +727,13 @@ void CLevel::SetPlayerMoveSpeed(float newVal)
 
 float CLevel::GetPlayerShootCooldown()
 {
-	return GetPlayerShootCooldown();
+	return m_fShootCoolDown;
 }
 
 void CLevel::SetPlayerShootCooldown(float newVal)
 {
-	SetPlayerShootCooldown(newVal);
+	m_fShootCoolDown = newVal;
+	m_pPlayer->SetShotCooldown(newVal);
 }
 
 float CLevel::GetInvaderShootCooldown()

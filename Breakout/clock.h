@@ -40,7 +40,7 @@ public:
 
     float GetDeltaTick();
 
-	int CountFramesPerSecond(float _DeltaTick);
+	void ResetDeltaTick();
 
 protected:
 

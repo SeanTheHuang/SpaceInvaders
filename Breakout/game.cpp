@@ -68,8 +68,6 @@ CGame::Initialise(HINSTANCE _hInstance, HWND _hWnd, int _iWidth, int _iHeight)
 	m_pLevel = new CLevel();
 	VALIDATE(m_pLevel->Initialise(_iWidth, _iHeight));
 
-	ShowCursor(false);
-
 	return (true);
 }
 
@@ -87,6 +85,12 @@ void
 CGame::Process(float _fDeltaTick)
 {
 	m_pLevel->Process(_fDeltaTick);
+}
+
+CClock*
+CGame::GetClock()
+{
+	return m_pClock;
 }
 
 void
